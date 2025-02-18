@@ -36,9 +36,9 @@ Window:Toggle("Auto Chest Collector", false, function(value) settings.autoChestC
 local function attackNPC(npc)
     if npc and npc:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character then
         LocalPlayer.Character.HumanoidRootPart.CFrame = npc.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0)
-        wait(0.2)
+        task.wait(0.2)
         VirtualInputManager:SendKeyEvent(true, "E", false, game)
-        wait(0.1)
+        task.wait(0.1)
         VirtualInputManager:SendKeyEvent(false, "E", false, game)
     end
 end
@@ -47,7 +47,7 @@ end
 local function getNPCForLevel(level)
     for _, npc in pairs(workspace:GetChildren()) do
         if npc:IsA("Model") and npc:FindFirstChild("Humanoid") and npc:FindFirstChild("HumanoidRootPart") then
-            local npcLevel = tonumber(npc:GetAttribute("Level"))
+            local npcLevel = npc:GetAttribute("Level")
             if npcLevel and math.abs(npcLevel - level) <= 100 then
                 return npc
             end
@@ -58,7 +58,8 @@ end
 
 -- AUTO FARM BASED ON LEVEL
 local function autoFarm()
-    while settings.autoFarm and RunService.RenderStepped:Wait() do
+    while settings.autoFarm do
+        task.wait()
         local myLevel = LocalPlayer.Data.Level.Value
         local targetNPC = getNPCForLevel(myLevel)
         if targetNPC then
@@ -69,11 +70,14 @@ end
 
 -- AUTO FRUIT SNIPER
 local function autoFruitSniper()
-    while settings.autoFruitSniper and RunService.RenderStepped:Wait() do
+    while settings.autoFruitSniper do
+        task.wait()
         for _, v in pairs(workspace:GetChildren()) do
             if v:IsA("Model") and v:FindFirstChild("Fruit") then
                 LocalPlayer.Character.HumanoidRootPart.CFrame = v.Fruit.CFrame
-                fireclickdetector(v.Fruit.ClickDetector)
+                if v.Fruit:FindFirstChild("ClickDetector") then
+                    fireclickdetector(v.Fruit.ClickDetector)
+                end
             end
         end
     end
@@ -81,9 +85,10 @@ end
 
 -- AUTO BOSS FINDER & KILLER
 local function autoBossFinder()
-    while settings.autoBossFinder and RunService.RenderStepped:Wait() do
+    while settings.autoBossFinder do
+        task.wait()
         for _, boss in pairs(workspace:GetChildren()) do
-            if boss:IsA("Model") and boss:FindFirstChild("Humanoid") and boss:FindFirstChild("Boss") then
+            if boss:IsA("Model") and boss:FindFirstChild("Humanoid") and boss:GetAttribute("Boss") then
                 attackNPC(boss)
             end
         end
@@ -92,7 +97,8 @@ end
 
 -- KILL AURA (AUTO ATTACK NEARBY ENEMIES)
 local function killAura()
-    while settings.autoKillAura and RunService.RenderStepped:Wait() do
+    while settings.autoKillAura do
+        task.wait()
         for _, enemy in pairs(workspace:GetChildren()) do
             if enemy:IsA("Model") and enemy:FindFirstChild("Humanoid") then
                 attackNPC(enemy)
@@ -103,11 +109,14 @@ end
 
 -- AUTO CHEST COLLECTOR
 local function autoChestCollector()
-    while settings.autoChestCollector and RunService.RenderStepped:Wait() do
+    while settings.autoChestCollector do
+        task.wait()
         for _, chest in pairs(workspace:GetChildren()) do
             if chest:IsA("Model") and chest:FindFirstChild("Chest") then
                 LocalPlayer.Character.HumanoidRootPart.CFrame = chest.Chest.CFrame
-                fireclickdetector(chest.Chest.ClickDetector)
+                if chest.Chest:FindFirstChild("ClickDetector") then
+                    fireclickdetector(chest.Chest.ClickDetector)
+                end
             end
         end
     end
