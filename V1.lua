@@ -29,6 +29,8 @@ local settings = {
     autoBossFinder = false,
     autoKillAura = false,
     autoChestCollector = false,
+    autoPVP = false,
+    autoAttackEquipped = false,
 }
 
 -- Function to Save Settings
@@ -70,6 +72,14 @@ Window:CreateToggle("Kill Aura", settings.autoKillAura, function(value)
 end)
 Window:CreateToggle("Auto Chest Collector", settings.autoChestCollector, function(value)
     settings.autoChestCollector = value
+    saveSettings()
+end)
+Window:CreateToggle("Auto PVP", settings.autoPVP, function(value)
+    settings.autoPVP = value
+    saveSettings()
+end)
+Window:CreateToggle("Auto Attack Equipped Item", settings.autoAttackEquipped, function(value)
+    settings.autoAttackEquipped = value
     saveSettings()
 end)
 
@@ -158,6 +168,24 @@ local function autoChestCollector()
         end
     end
 end
+
+-- AUTO PVP ENABLE ON DEATH
+LocalPlayer.CharacterAdded:Connect(function()
+    if settings.autoPVP then
+        task.wait(1)
+        ReplicatedStorage.Remotes.TogglePVP:FireServer(true)
+    end
+end)
+
+-- AUTO ATTACK WHEN ITEM EQUIPPED
+LocalPlayer.Character.ChildAdded:Connect(function(child)
+    if settings.autoAttackEquipped and (child:IsA("Tool") or child:IsA("HopperBin")) then
+        while settings.autoAttackEquipped and child.Parent == LocalPlayer.Character do
+            task.wait(0.2)
+            ReplicatedStorage.Remotes.Combat:FireServer("Melee")
+        end
+    end
+end)
 
 -- STARTING THE SCRIPTS
 spawn(autoFarm)
