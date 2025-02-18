@@ -14,7 +14,7 @@ if not success then
     return
 end
 
-local Window = DeltaUILib:Window("Blox Fruits Script")
+local Window = DeltaUILib:CreateWindow("Blox Fruits Script")
 
 -- CONFIGURATION SETTINGS
 local settings = {
@@ -26,11 +26,11 @@ local settings = {
 }
 
 -- GUI TOGGLE BUTTONS
-Window:Toggle("Auto Farm", false, function(value) settings.autoFarm = value end)
-Window:Toggle("Auto Fruit Sniper", false, function(value) settings.autoFruitSniper = value end)
-Window:Toggle("Auto Boss Finder", false, function(value) settings.autoBossFinder = value end)
-Window:Toggle("Kill Aura", false, function(value) settings.autoKillAura = value end)
-Window:Toggle("Auto Chest Collector", false, function(value) settings.autoChestCollector = value end)
+Window:CreateToggle("Auto Farm", false, function(value) settings.autoFarm = value end)
+Window:CreateToggle("Auto Fruit Sniper", false, function(value) settings.autoFruitSniper = value end)
+Window:CreateToggle("Auto Boss Finder", false, function(value) settings.autoBossFinder = value end)
+Window:CreateToggle("Kill Aura", false, function(value) settings.autoKillAura = value end)
+Window:CreateToggle("Auto Chest Collector", false, function(value) settings.autoChestCollector = value end)
 
 -- FUNCTION TO ATTACK NPC
 local function attackNPC(npc)
@@ -76,7 +76,7 @@ local function autoFruitSniper()
             if v:IsA("Model") and v:FindFirstChild("Fruit") then
                 LocalPlayer.Character.HumanoidRootPart.CFrame = v.Fruit.CFrame
                 if v.Fruit:FindFirstChild("ClickDetector") then
-                    fireclickdetector(v.Fruit.ClickDetector)
+                    fireproximityprompt(v.Fruit.ClickDetector)
                 end
             end
         end
@@ -115,7 +115,7 @@ local function autoChestCollector()
             if chest:IsA("Model") and chest:FindFirstChild("Chest") then
                 LocalPlayer.Character.HumanoidRootPart.CFrame = chest.Chest.CFrame
                 if chest.Chest:FindFirstChild("ClickDetector") then
-                    fireclickdetector(chest.Chest.ClickDetector)
+                    fireproximityprompt(chest.Chest.ClickDetector)
                 end
             end
         end
