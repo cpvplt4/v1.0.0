@@ -1,15 +1,14 @@
--- BLOX FRUITS AUTO SCRIPT (GUI Version)
--- Works with Synapse X, KRNL, Script-Ware, Delta
+-- BLOX FRUITS AUTO SCRIPT (DELTA SUPPORTED GUI)
+-- Fully compatible with Delta Executor
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local LocalPlayer = Players.LocalPlayer
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/DeltaHubOfficial/Delta/main/UILibrary.lua"))()
 
--- GUI SETUP
-local Window = Library:CreateWindow("Blox Fruits Script")
-local MainTab = Window:CreateTab("Main")
+-- Load Delta UI Library
+local DeltaUILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/DeltaHubOfficial/Delta/main/UILibrary.lua"))()
+local Window = DeltaUILib:Window("Blox Fruits Script")
 
 -- CONFIGURATION SETTINGS
 local settings = {
@@ -18,21 +17,32 @@ local settings = {
     autoBossFinder = false,
     autoKillAura = false,
     autoChestCollector = false,
-    teleportNPC = "Blox Fruit Dealer",
 }
 
 -- GUI TOGGLE BUTTONS
-MainTab:CreateToggle("Auto Farm", function(value) settings.autoFarm = value end)
-MainTab:CreateToggle("Auto Fruit Sniper", function(value) settings.autoFruitSniper = value end)
-MainTab:CreateToggle("Auto Boss Finder", function(value) settings.autoBossFinder = value end)
-MainTab:CreateToggle("Kill Aura", function(value) settings.autoKillAura = value end)
-MainTab:CreateToggle("Auto Chest Collector", function(value) settings.autoChestCollector = value end)
+Window:Toggle("Auto Farm", false, function(value) settings.autoFarm = value end)
+Window:Toggle("Auto Fruit Sniper", false, function(value) settings.autoFruitSniper = value end)
+Window:Toggle("Auto Boss Finder", false, function(value) settings.autoBossFinder = value end)
+Window:Toggle("Kill Aura", false, function(value) settings.autoKillAura = value end)
+Window:Toggle("Auto Chest Collector", false, function(value) settings.autoChestCollector = value end)
+
+-- FUNCTION TO ATTACK NPC
+local function attackNPC(npc)
+    if npc and npc:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = npc.HumanoidRootPart.CFrame
+        wait(0.2)
+        -- Simulate attack
+        VirtualInputManager:SendKeyEvent(true, "E", false, game)
+        wait(0.1)
+        VirtualInputManager:SendKeyEvent(false, "E", false, game)
+    end
+end
 
 -- AUTO FARM BASED ON LEVEL
-function autoFarm()
+local function autoFarm()
     while settings.autoFarm do
         local myLevel = LocalPlayer.Data.Level.Value
-        local targetNPC = getNPCForLevel(myLevel)
+        local targetNPC = getNPCForLevel(myLevel)  -- Function to get NPC based on level
         if targetNPC then
             LocalPlayer.Character.HumanoidRootPart.CFrame = targetNPC.HumanoidRootPart.CFrame
             attackNPC(targetNPC)
@@ -42,7 +52,7 @@ function autoFarm()
 end
 
 -- AUTO FRUIT SNIPER
-function autoFruitSniper()
+local function autoFruitSniper()
     while settings.autoFruitSniper do
         for i, v in pairs(workspace:GetChildren()) do
             if v:IsA("Model") and v:FindFirstChild("Fruit") then
@@ -55,7 +65,7 @@ function autoFruitSniper()
 end
 
 -- AUTO BOSS FINDER & KILLER
-function autoBossFinder()
+local function autoBossFinder()
     while settings.autoBossFinder do
         for _, boss in pairs(workspace:GetChildren()) do
             if boss:IsA("Model") and boss:FindFirstChild("Humanoid") and boss:FindFirstChild("Boss") then
@@ -68,7 +78,7 @@ function autoBossFinder()
 end
 
 -- KILL AURA (AUTO ATTACK NEARBY ENEMIES)
-function killAura()
+local function killAura()
     while settings.autoKillAura do
         for _, enemy in pairs(workspace:GetChildren()) do
             if enemy:IsA("Model") and enemy:FindFirstChild("Humanoid") then
@@ -80,7 +90,7 @@ function killAura()
 end
 
 -- AUTO CHEST COLLECTOR
-function autoChestCollector()
+local function autoChestCollector()
     while settings.autoChestCollector do
         for _, chest in pairs(workspace:GetChildren()) do
             if chest:IsA("Model") and chest:FindFirstChild("Chest") then
@@ -89,15 +99,6 @@ function autoChestCollector()
             end
         end
         wait(2)
-    end
-end
-
--- TELEPORT TO SPECIFIC NPC
-function teleportToNPC(npcName)
-    for _, npc in pairs(workspace:GetChildren()) do
-        if npc:IsA("Model") and npc.Name == npcName then
-            LocalPlayer.Character.HumanoidRootPart.CFrame = npc.HumanoidRootPart.CFrame
-        end
     end
 end
 
