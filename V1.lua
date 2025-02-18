@@ -3,20 +3,26 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local VirtualInputManager = game:GetService("VirtualInputManager")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
 
--- Load Delta UI Library
-local success, DeltaUILib = pcall(loadstring, game:HttpGet("https://raw.githubusercontent.com/DeltaHubOfficial/Delta/main/UILibrary.lua"))
-if not success then
+-- Load Delta UI Library (More Reliable Loading Method)
+local DeltaUILib
+local success, result = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/DeltaHubOfficial/Delta/main/UILibrary.lua"))()
+end)
+if success then
+    DeltaUILib = result
+else
     warn("Failed to load Delta UI Library")
     return
 end
 
 local Window = DeltaUILib:CreateWindow("Blox Fruits Script")
 
--- CONFIGURATION SETTINGS
+-- CONFIGURATION SETTINGS (Persistent)
+local settingsFile = "BloxFruitsSettings.json"
 local settings = {
     autoFarm = false,
     autoFruitSniper = false,
@@ -25,21 +31,54 @@ local settings = {
     autoChestCollector = false,
 }
 
+-- Function to Save Settings
+local function saveSettings()
+    writefile(settingsFile, HttpService:JSONEncode(settings))
+end
+
+-- Function to Load Settings
+local function loadSettings()
+    if isfile(settingsFile) then
+        local success, data = pcall(function()
+            return HttpService:JSONDecode(readfile(settingsFile))
+        end)
+        if success and type(data) == "table" then
+            settings = data
+        end
+    end
+end
+
+-- Load Settings on Script Execution
+loadSettings()
+
 -- GUI TOGGLE BUTTONS
-Window:CreateToggle("Auto Farm", false, function(value) settings.autoFarm = value end)
-Window:CreateToggle("Auto Fruit Sniper", false, function(value) settings.autoFruitSniper = value end)
-Window:CreateToggle("Auto Boss Finder", false, function(value) settings.autoBossFinder = value end)
-Window:CreateToggle("Kill Aura", false, function(value) settings.autoKillAura = value end)
-Window:CreateToggle("Auto Chest Collector", false, function(value) settings.autoChestCollector = value end)
+Window:CreateToggle("Auto Farm", settings.autoFarm, function(value)
+    settings.autoFarm = value
+    saveSettings()
+end)
+Window:CreateToggle("Auto Fruit Sniper", settings.autoFruitSniper, function(value)
+    settings.autoFruitSniper = value
+    saveSettings()
+end)
+Window:CreateToggle("Auto Boss Finder", settings.autoBossFinder, function(value)
+    settings.autoBossFinder = value
+    saveSettings()
+end)
+Window:CreateToggle("Kill Aura", settings.autoKillAura, function(value)
+    settings.autoKillAura = value
+    saveSettings()
+end)
+Window:CreateToggle("Auto Chest Collector", settings.autoChestCollector, function(value)
+    settings.autoChestCollector = value
+    saveSettings()
+end)
 
 -- FUNCTION TO ATTACK NPC
 local function attackNPC(npc)
     if npc and npc:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character then
         LocalPlayer.Character.HumanoidRootPart.CFrame = npc.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0)
         task.wait(0.2)
-        VirtualInputManager:SendKeyEvent(true, "E", false, game)
-        task.wait(0.1)
-        VirtualInputManager:SendKeyEvent(false, "E", false, game)
+        ReplicatedStorage.Remotes.Combat:FireServer("Melee") -- Alternative attack method
     end
 end
 
@@ -75,9 +114,8 @@ local function autoFruitSniper()
         for _, v in pairs(workspace:GetChildren()) do
             if v:IsA("Model") and v:FindFirstChild("Fruit") then
                 LocalPlayer.Character.HumanoidRootPart.CFrame = v.Fruit.CFrame
-                if v.Fruit:FindFirstChild("ClickDetector") then
-                    fireproximityprompt(v.Fruit.ClickDetector)
-                end
+                task.wait(0.2)
+                ReplicatedStorage.Remotes.Interact:InvokeServer(v.Fruit) -- Alternative pickup method
             end
         end
     end
@@ -114,9 +152,8 @@ local function autoChestCollector()
         for _, chest in pairs(workspace:GetChildren()) do
             if chest:IsA("Model") and chest:FindFirstChild("Chest") then
                 LocalPlayer.Character.HumanoidRootPart.CFrame = chest.Chest.CFrame
-                if chest.Chest:FindFirstChild("ClickDetector") then
-                    fireproximityprompt(chest.Chest.ClickDetector)
-                end
+                task.wait(0.2)
+                ReplicatedStorage.Remotes.Interact:InvokeServer(chest.Chest) -- Alternative method
             end
         end
     end
