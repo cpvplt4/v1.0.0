@@ -8,7 +8,7 @@ local response = KeySystem:Init({
 	Description=nil, -- <string or nil> Description of key system
 	Link="https://loot-link.com/s?FmpHRMH9", -- <string> String to get key
 	Discord="https://loot-link.com/s?FmpHRMH9", -- <string or nil> Button to join your discord server
-	SaveKey=false, -- <bool or nil> Just auto save key
+	SaveKey=true, -- <bool or nil> Just auto save key
 	Verify=function(key) -- <function> Verify is key valid
 		if key=="CPVPHUB1234" then
       KeyValid=true
